@@ -39,19 +39,7 @@ public class MainActivity extends AppCompatActivity {
         smsService = new SmsService(phoneSmsService, smsFileService);
         RequestPermissions();
 
-        TelegramBot bot = new TelegramBot("6188071284:AAEBHmsthgv4xojQ03NE-TV4WZVIjW2yr4I");
 
-// Register for updates
-        bot.setUpdatesListener(updates -> {
-
-            Update update = updates.get(0);
-
-            long chatId = update.message().chat().id();
-            SendResponse response = bot.execute(new SendMessage(chatId, "Hello!"));
-            // ... process updates
-            // return id of last processed update or confirm them all
-            return UpdatesListener.CONFIRMED_UPDATES_ALL;
-        });
 
     }
 
