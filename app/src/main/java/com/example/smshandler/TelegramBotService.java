@@ -1,6 +1,6 @@
 package com.example.smshandler;
 
-import android.content.Context;
+import android.util.ArraySet;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -8,13 +8,12 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 
+import java.util.Set;
+
 public class TelegramBotService
 {
-    private ChatIdService chatIdService;
     private TelegramBot bot;
-    public TelegramBotService(Context context){
-        chatIdService = new ChatIdService(context);
-    }
+    public Set<String> ChatIdsSet = new ArraySet<>();
 
     public void Init(){
         bot = new TelegramBot("6188071284:AAEBHmsthgv4xojQ03NE-TV4WZVIjW2yr4I");
@@ -23,7 +22,11 @@ public class TelegramBotService
             Update update = updates.get(0);
 
             long chatId = update.message().chat().id();
-            chatIdService.SaveChatId(Long.toString(chatId));
+
+            if(!ChatIdsSet.contains(Long.toString(chatId))){
+                ChatIdsSet.add(Long.toString(chatId));
+            }
+
             SendResponse response = bot.execute(new SendMessage(chatId, "Hello!"));
 
             // return id of last processed update or confirm them all
@@ -32,9 +35,16 @@ public class TelegramBotService
     }
 
     public void SendMessage(String text){
-        String[] chatIds = chatIdService.GetChatIds();
-        for (int i = 0; i < chatIds.length;i ++){
-            SendResponse response = bot.execute(new SendMessage(chatIds[i], text));
-        }
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                String[] ChatIdsArray = new String[ChatIdsSet.size()];
+                ChatIdsSet.toArray(ChatIdsArray);
+
+                for (String chatId : ChatIdsArray) {
+                    bot.execute(new SendMessage(Long.parseLong(chatId), text));
+                }
+            }
+        }).start();
     }
 }
