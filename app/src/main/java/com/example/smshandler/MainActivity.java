@@ -10,17 +10,12 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.google.gson.Gson;
-
-import java.util.Arrays;
-
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
     private Context context;
 
-    private SmsFileService smsFileService;
-    private PhoneSmsService phoneSmsService;
+    private SmsService smsService;
 
 
     @Override
@@ -33,17 +28,13 @@ public class MainActivity extends AppCompatActivity {
     private void App(){
         context = getApplicationContext();
         textView = findViewById(R.id.textView);
-        smsFileService = new SmsFileService(context);
-        phoneSmsService = new PhoneSmsService(getContentResolver());
+        SmsFileService smsFileService = new SmsFileService(context);
+        PhoneSmsService phoneSmsService = new PhoneSmsService(getContentResolver());
+        smsService = new SmsService(phoneSmsService, smsFileService);
         RequestPermissions();
-        FileListing();
     }
 
-    private void FileListing(){
-        Sms[] allSmsFromFile = smsFileService.GetAllSmsFromFile();
-        int length = Math.min(allSmsFromFile.length, 3);
-
-        Sms[] someSms = Arrays.copyOfRange(allSmsFromFile, 0, length-1);
+    private void FileListing(Sms[] someSms){
         textView.setText(GetText(someSms));
     }
 
@@ -53,10 +44,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Read_SMS(View view){
-        Sms[] latestSms = phoneSmsService.ReadLatestSms(3);
-        String content = new Gson().toJson(latestSms);
-        smsFileService.WriteToFile(content);
-        FileListing();
+        Sms[] latestSms = smsService.GetAndStoreLatestSms();
+        FileListing(latestSms);
     }
 
     private String GetText(Sms[] allSms){

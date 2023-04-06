@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class SmsFileService {
 
-    private String FileName = "allSms.txt";
+    private String FileName = "1.txt";
     private Context context;
 
     public SmsFileService(Context context){
@@ -40,6 +40,9 @@ public class SmsFileService {
     public Sms[] GetAllSmsFromFile(){
         String fileContent = readFromFile();
         Sms[] allSms = new Gson().fromJson(fileContent, Sms[].class);
+        if(allSms == null){
+            allSms = new Sms[0];
+        }
         Arrays.sort(allSms, (a,b) -> a.TimeStamp < b.TimeStamp ? 1 : -1);
         return allSms;
     }

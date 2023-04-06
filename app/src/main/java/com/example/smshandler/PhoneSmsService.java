@@ -12,7 +12,7 @@ import java.util.List;
 public class PhoneSmsService
 {
     private ContentResolver contentResolver;
-    private final int countOfSms = 3; //count of latest sms
+
     public PhoneSmsService(ContentResolver contentResolver){
         this.contentResolver = contentResolver;
     }
