@@ -1,12 +1,8 @@
 package com.example.smshandler;
 
-import static java.lang.Long.parseLong;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -16,9 +12,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
 
     private SmsFileService smsFileService;
+    private PhoneSmsService phoneSmsService;
 
 
     @Override
@@ -39,13 +34,14 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
         textView = findViewById(R.id.textView);
         smsFileService = new SmsFileService(context);
+        phoneSmsService = new PhoneSmsService(getContentResolver());
         RequestPermissions();
         FileListing();
     }
 
     private void FileListing(){
         Sms[] allSmsFromFile = smsFileService.GetAllSmsFromFile();
-        int length = allSmsFromFile.length > 3 ? 3 : allSmsFromFile.length;
+        int length = Math.min(allSmsFromFile.length, 3);
 
         Sms[] someSms = Arrays.copyOfRange(allSmsFromFile, 0, length-1);
         textView.setText(GetText(someSms));
@@ -57,22 +53,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Read_SMS(View view){
-        Uri uri =  Uri.parse("content://sms");
-        Cursor cursor =  getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-
-        List<Sms> allSms = new ArrayList<>();
-
-        while(!cursor.isLast()){
-            Sms sms = new Sms();
-            sms.From = cursor.getString(2);
-            sms.Text = cursor.getString(12);
-            sms.TimeStamp = parseLong(cursor.getString(4));
-            allSms.add(sms);
-            cursor.moveToNext();
-        }
-
-        String content = new Gson().toJson(allSms);
+        Sms[] latestSms = phoneSmsService.ReadLatestSms(3);
+        String content = new Gson().toJson(latestSms);
         smsFileService.WriteToFile(content);
         FileListing();
     }
@@ -83,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
             Sms sms = allSms[i];
             result += "From: " + sms.From + "\r\n" +
                     "TimeStamp: " + sms.TimeStamp + "\r\n" +
-                    "Text: " + sms.Text + "\r\n";
+                    "Text: " + sms.Text + "\r\n" +
+                    "Id: " + sms.Id + "\r\n";
         }
         return result;
     }
