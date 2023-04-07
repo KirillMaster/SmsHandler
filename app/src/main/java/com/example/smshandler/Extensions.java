@@ -2,7 +2,10 @@ package com.example.smshandler;
 
 import java.security.MessageDigest;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Extensions
 {
@@ -32,16 +35,13 @@ public class Extensions
                 "Text: " + sms.Text + "\r\n";
     }
 
-    public static String GetAllSmsText(Sms[] allSms){
-        String result = "";
-        for(int i = 0; i < allSms.length;i ++){
-            Sms sms = allSms[i];
+    public static String[] GetAllSmsText(Sms[] sms){
+        List<String> smsList =  Arrays.stream(sms)
+                .map(Extensions::GetSmsText)
+                .collect(Collectors.toList());
 
-            Timestamp ts=new Timestamp(sms.TimeStamp);
-            Date date=new Date(ts.getTime());
-
-            result += Extensions.GetSmsText(sms);
-        }
-        return result;
+        String[] arr = new String[smsList.size()];
+        smsList.toArray(arr);
+        return arr;
     }
 }

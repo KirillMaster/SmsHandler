@@ -1,6 +1,7 @@
 package com.example.smshandler;
 
 import android.util.ArraySet;
+import android.util.Log;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -8,23 +9,20 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class TelegramBotService
 {
     private static TelegramBot bot;
     public static Set<String> ChatIdsSet = new ArraySet<>();
 
-    private final SmsService smsService;
+    private static SmsService smsService;
 
     public TelegramBotService(SmsService smsService){
-        this.smsService = smsService;
+        TelegramBotService.smsService = smsService;
     }
 
     public static TelegramBot GetBot(){
@@ -35,25 +33,43 @@ public class TelegramBotService
         bot = new TelegramBot(BotToken.Token);
         bot.setUpdatesListener(updates -> {
 
-            Update update = updates.get(0);
+            try {
 
-            long chatId = update.message().chat().id();
-            String userMessage = update.message().text();
 
-            if(!ChatIdsSet.contains(Long.toString(chatId))){
-                ChatIdsSet.add(Long.toString(chatId));
+                Update update = updates.get(0);
+
+                long chatId = update.message().chat().id();
+                String userMessage = update.message().text();
+
+                if (!ChatIdsSet.contains(Long.toString(chatId))) {
+                    ChatIdsSet.add(Long.toString(chatId));
+                }
+
+                String[] responseMessages = GetResponseMessages(userMessage);
+
+                for (String responseMessage : responseMessages) {
+                    SendResponse response = bot
+                            .execute(new SendMessage(chatId, responseMessage));
+                }
             }
-
-            String[] responseMessages = GetResponseMessages(userMessage);
-
-            for(String responseMessage: responseMessages){
-                SendResponse response = bot
-                        .execute(new SendMessage(chatId, responseMessage));
+            catch (Exception ex){
+                Log.e("unhandled exception on bot init", "sorry");
             }
 
             // return id of last processed update or confirm them all
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
+    }
+
+    public static void SendUnseenMessages(int count, TelegramBot bot){
+       String[] arr = Extensions.GetAllSmsText(smsService.GetUnseenSms(count));
+        for (String sms: arr){
+            SendMessage(sms, bot);
+        }
+    }
+
+    private static String[] GetLatestMessages(int count){
+        return Extensions.GetAllSmsText(smsService.GetLatestSms(count));
     }
 
     private String[] GetResponseMessages(String userMessage)
@@ -70,13 +86,7 @@ public class TelegramBotService
                     count = Integer.parseInt(Objects.requireNonNull(m.group(0)));
                 }
             }
-            List<String> smsList =  Arrays.stream(smsService.GetLatestSms(count))
-                    .map(Extensions::GetSmsText)
-                    .collect(Collectors.toList());
-
-            String[] arr = new String[smsList.size()];
-
-            return smsList.toArray(arr);
+            return GetLatestMessages(count);
         }
         return new String[]{userMessage};
     }

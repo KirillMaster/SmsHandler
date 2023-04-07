@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class SmsFileService {
 
-    private String FileName = "5.txt";
+    private String FileName = "StoredSms2.txt";
     private Context context;
 
     public SmsFileService(Context context){

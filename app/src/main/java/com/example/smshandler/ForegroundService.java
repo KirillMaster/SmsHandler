@@ -25,17 +25,22 @@ public class ForegroundService extends Service {
                         while (true) {
                             Log.e("Service", "Service is running...");
                             try {
-                                int sleepTime = 5000;
+                                int sleepTime = 2000;
 
                                 Thread.sleep(sleepTime);
 
-                                counter += sleepTime;
+                                TelegramBotService.SendUnseenMessages(1, bot);
+
 
                                 //30 minutes
                                 if(counter > 1.8e+6){
-                                    TelegramBotService.SendMessage("Health check", bot);
                                     counter = 0;
                                 }
+
+                                if(counter == 0){
+                                    TelegramBotService.SendMessage("Health check", bot);
+                                }
+                                counter+=sleepTime;
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
