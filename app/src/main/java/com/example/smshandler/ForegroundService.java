@@ -10,6 +10,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.pengrad.telegrambot.TelegramBot;
+
 public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -17,10 +19,23 @@ public class ForegroundService extends Service {
                 new Runnable() {
                     @Override
                     public void run() {
+                        int counter = 0;
+                        TelegramBot bot = TelegramBotService.GetBot();
+                        TelegramBotService.SendMessage("Health check", bot);
                         while (true) {
                             Log.e("Service", "Service is running...");
                             try {
-                                Thread.sleep(2000);
+                                int sleepTime = 5000;
+
+                                Thread.sleep(sleepTime);
+
+                                counter += sleepTime;
+
+                                //30 minutes
+                                if(counter > 1.8e+6){
+                                    TelegramBotService.SendMessage("Health check", bot);
+                                    counter = 0;
+                                }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

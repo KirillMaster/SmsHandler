@@ -18,13 +18,17 @@ import java.util.stream.Collectors;
 
 public class TelegramBotService
 {
-    private TelegramBot bot;
-    public Set<String> ChatIdsSet = new ArraySet<>();
+    private static TelegramBot bot;
+    public static Set<String> ChatIdsSet = new ArraySet<>();
 
     private final SmsService smsService;
 
     public TelegramBotService(SmsService smsService){
         this.smsService = smsService;
+    }
+
+    public static TelegramBot GetBot(){
+        return bot;
     }
 
     public void Init(){
@@ -77,7 +81,7 @@ public class TelegramBotService
         return new String[]{userMessage};
     }
 
-    public void SendMessage(String text){
+    public static void SendMessage(String text, TelegramBot bot){
         new Thread(new Runnable(){
             @Override
             public void run() {

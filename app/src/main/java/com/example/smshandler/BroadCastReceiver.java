@@ -15,6 +15,5 @@ public class BroadCastReceiver extends BroadcastReceiver {
                 context.startForegroundService(serviceIntent);
             }
         }
-        
     }
 }

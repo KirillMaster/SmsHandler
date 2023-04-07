@@ -31,7 +31,9 @@ public class MainActivity extends AppCompatActivity {
         RequestPermissions();
         TelegramBotService telegramBotService = new TelegramBotService(smsService);
         telegramBotService.Init();
+
         StartForegroundJob();
+
         TextView textView = findViewById(R.id.textView);
 
         if(foregroundServiceRunning()){
