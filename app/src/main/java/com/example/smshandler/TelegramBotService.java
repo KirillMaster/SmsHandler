@@ -28,7 +28,7 @@ public class TelegramBotService
     }
 
     public void Init(){
-        bot = new TelegramBot("6188071284:AAEBHmsthgv4xojQ03NE-TV4WZVIjW2yr4I");
+        bot = new TelegramBot(BotToken.Token);
         bot.setUpdatesListener(updates -> {
 
             Update update = updates.get(0);
