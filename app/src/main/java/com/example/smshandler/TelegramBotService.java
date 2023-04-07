@@ -21,7 +21,7 @@ public class TelegramBotService
     private TelegramBot bot;
     public Set<String> ChatIdsSet = new ArraySet<>();
 
-    private SmsService smsService;
+    private final SmsService smsService;
 
     public TelegramBotService(SmsService smsService){
         this.smsService = smsService;
@@ -57,8 +57,7 @@ public class TelegramBotService
         if(userMessage.contains("ping")){
             return new String[]{"pong"};
         }
-        if(userMessage.contains("test ")){
-
+        if(userMessage.contains("latest")){
             Pattern p = Pattern.compile("\\d+");
             Matcher m = p.matcher(userMessage);
             int count = 1;
