@@ -51,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(serviceIntent);
             }
+            else {
+                startService(serviceIntent);
+            }
+
             foregroundServiceRunning();
         }
         catch (Exception ex){
