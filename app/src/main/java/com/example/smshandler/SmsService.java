@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SmsService {
-    private PhoneSmsService phoneSmsService;
-    private SmsFileService smsFileService;
+    private final PhoneSmsService phoneSmsService;
+    private final SmsFileService smsFileService;
     private final int countOfSms = 3; //count of latest sms
 
     public SmsService(PhoneSmsService phoneSmsService, SmsFileService smsFileService){
@@ -17,8 +17,8 @@ public class SmsService {
         this.smsFileService = smsFileService;
     }
 
-    public Sms[] GetAndStoreLatestSms(){
-        Sms[] phoneSms = this.phoneSmsService.ReadLatestSms(countOfSms);
+    public Sms[] GetUnseenSms(int count){
+        Sms[] phoneSms = this.phoneSmsService.ReadLatestSms(count);
         Sms[] seenSms = this.smsFileService.GetAllSmsFromFile();
         List<String> seenSmsIds = Arrays.stream(seenSms).map(x -> x.Id).collect(Collectors.toList());
 
@@ -36,6 +36,14 @@ public class SmsService {
 
         Sms[] result = new Sms[newSms.size()];
         return newSms.toArray(result);
+    }
+
+    public Sms[] GetUnseenSms(){
+       return GetUnseenSms(countOfSms);
+    }
+
+    public Sms[] GetLatestSms(int count){
+        return this.phoneSmsService.ReadLatestSms(count);
     }
 
     private boolean Seen(List<String> seenSmsIds, Sms phoneSms){

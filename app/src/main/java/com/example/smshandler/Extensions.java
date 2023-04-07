@@ -1,6 +1,8 @@
 package com.example.smshandler;
 
 import java.security.MessageDigest;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class Extensions
 {
@@ -19,5 +21,27 @@ public class Extensions
         } catch(Exception ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    public static String GetSmsText(Sms sms){
+        Timestamp ts=new Timestamp(sms.TimeStamp);
+        Date date=new Date(ts.getTime());
+
+        return "From: " + sms.From + "\r\n" +
+                "Date: " +  date     + "\r\n" +
+                "Text: " + sms.Text + "\r\n";
+    }
+
+    public static String GetAllSmsText(Sms[] allSms){
+        String result = "";
+        for(int i = 0; i < allSms.length;i ++){
+            Sms sms = allSms[i];
+
+            Timestamp ts=new Timestamp(sms.TimeStamp);
+            Date date=new Date(ts.getTime());
+
+            result += Extensions.GetSmsText(sms);
+        }
+        return result;
     }
 }

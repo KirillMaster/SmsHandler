@@ -10,9 +10,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
         PhoneSmsService phoneSmsService = new PhoneSmsService(getContentResolver());
         smsService = new SmsService(phoneSmsService, smsFileService);
         RequestPermissions();
-        telegramBotService = new TelegramBotService();
+        telegramBotService = new TelegramBotService(smsService);
         telegramBotService.Init();
     }
 
     private void FileListing(Sms[] someSms){
-        textView.setText(GetText(someSms));
+        textView.setText(Extensions.GetAllSmsText(someSms));
     }
 
     private void RequestPermissions(){
@@ -52,26 +49,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Read_SMS(View view){
-        Sms[] latestSms = smsService.GetAndStoreLatestSms();
+        Sms[] latestSms = smsService.GetUnseenSms();
 
         if(latestSms.length > 0){
             FileListing(latestSms);
-            telegramBotService.SendMessage(GetText(latestSms));
+            telegramBotService.SendMessage(Extensions.GetAllSmsText(latestSms));
         }
-    }
-
-    private String GetText(Sms[] allSms){
-        String result = "";
-        for(int i = 0; i < allSms.length;i ++){
-            Sms sms = allSms[i];
-
-            Timestamp ts=new Timestamp(sms.TimeStamp);
-            Date date=new Date(ts.getTime());
-
-            result += "From: " + sms.From + "\r\n" +
-                    "Date: " +  date     + "\r\n" +
-                    "Text: " + sms.Text + "\r\n";
-        }
-        return result;
     }
 }

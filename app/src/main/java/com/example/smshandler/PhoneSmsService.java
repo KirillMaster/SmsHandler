@@ -24,7 +24,7 @@ public class PhoneSmsService
         List<Sms> allSms = new ArrayList<>();
 
         int i = 0;
-        while(i < count || !cursor.isLast()){
+        while(i < count && !cursor.isLast()){
             Sms sms = new Sms(
                     parseLong(cursor.getString(4)), //timestamp
                     cursor.getString(12), //text
