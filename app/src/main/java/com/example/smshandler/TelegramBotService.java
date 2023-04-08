@@ -1,5 +1,7 @@
 package com.example.smshandler;
 
+import static com.example.smshandler.GlobalConfiguration.HealthCheckTimeoutMs;
+
 import android.util.ArraySet;
 import android.util.Log;
 
@@ -32,10 +34,7 @@ public class TelegramBotService
     public void Init(){
         bot = new TelegramBot(BotToken.Token);
         bot.setUpdatesListener(updates -> {
-
             try {
-
-
                 Update update = updates.get(0);
 
                 long chatId = update.message().chat().id();
@@ -74,21 +73,41 @@ public class TelegramBotService
 
     private String[] GetResponseMessages(String userMessage)
     {
-        if(userMessage.contains("ping")){
-            return new String[]{"pong"};
-        }
-        if(userMessage.contains("latest")){
-            Pattern p = Pattern.compile("\\d+");
-            Matcher m = p.matcher(userMessage);
-            int count = 1;
-            while(m.find()) {
-                if(m.group(0) != null){
-                    count = Integer.parseInt(Objects.requireNonNull(m.group(0)));
-                }
+        try{
+            if(userMessage.toLowerCase().contains("ping")){
+                return new String[]{"pong"};
             }
-            return GetLatestMessages(count);
+            if(userMessage.toLowerCase().contains("latest")){
+                return GetLatestMessages(ExtractNumberParameter(userMessage));
+            }
+            if(userMessage.toLowerCase().contains("set_healthcheck_timeout")){
+                int timeout = ExtractNumberParameter(userMessage);
+                HealthCheckTimeoutMs =  timeout > 0 ? timeout : 5000;
+                return new String[] {"Healthcheck timeout set to " + timeout + "ms"};
+            }
+            if(userMessage.toLowerCase().contains("set_sms_check_timeout")){
+                int timeout = ExtractNumberParameter(userMessage);
+                GlobalConfiguration.CheckForMessagesTimeoutMs =  timeout > 0 ? timeout : 1000;
+                return new String[] {"Check sms timeout set to " + timeout + "ms"};
+            }
+        }
+        catch (Exception ex){
+            Log.e("Bot", "cant't process message");
+            return new String[]{"Cant't process such message. Error"};
         }
         return new String[]{userMessage};
+    }
+
+    private int ExtractNumberParameter(String message){
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher(message);
+        int count = 1;
+        while(m.find()) {
+            if(m.group(0) != null){
+                count = Integer.parseInt(Objects.requireNonNull(m.group(0)));
+            }
+        }
+        return count;
     }
 
     public static void SendMessage(String text, TelegramBot bot){

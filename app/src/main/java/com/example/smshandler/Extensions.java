@@ -1,5 +1,7 @@
 package com.example.smshandler;
 
+import android.util.Log;
+
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -22,26 +24,39 @@ public class Extensions
             }
             return hexString.toString();
         } catch(Exception ex){
-            throw new RuntimeException(ex);
+            Log.e("Sha256", "cant' calculate hash");
+            return "";
         }
     }
 
     public static String GetSmsText(Sms sms){
-        Timestamp ts=new Timestamp(sms.TimeStamp);
-        Date date=new Date(ts.getTime());
+        try{
+            Timestamp ts=new Timestamp(sms.TimeStamp);
+            Date date=new Date(ts.getTime());
 
-        return "From: " + sms.From + "\r\n" +
-                "Date: " +  date     + "\r\n" +
-                "Text: " + sms.Text + "\r\n";
+            return "From: " + sms.From + "\r\n" +
+                    "Date: " +  date     + "\r\n" +
+                    "Text: " + sms.Text + "\r\n";
+        }
+        catch (Exception ex){
+            Log.e("Extensions", "Cant't calculate message text");
+            return "";
+        }
     }
 
     public static String[] GetAllSmsText(Sms[] sms){
-        List<String> smsList =  Arrays.stream(sms)
-                .map(Extensions::GetSmsText)
-                .collect(Collectors.toList());
+        try{
+            List<String> smsList =  Arrays.stream(sms)
+                    .map(Extensions::GetSmsText)
+                    .collect(Collectors.toList());
 
-        String[] arr = new String[smsList.size()];
-        smsList.toArray(arr);
-        return arr;
+            String[] arr = new String[smsList.size()];
+            smsList.toArray(arr);
+            return arr;
+        }
+        catch (Exception ex){
+            Log.e("Extensions", "cant't get all sms text");
+            return new String[0];
+        }
     }
 }

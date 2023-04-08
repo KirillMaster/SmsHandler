@@ -11,50 +11,26 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.pengrad.telegrambot.TelegramBot;
-
 public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        int counter = 0;
-                        TelegramBot bot = TelegramBotService.GetBot();
-                        TelegramBotService.SendMessage("Health check", bot);
-                        while (true) {
-                            Log.e("Service", "Service is running...");
-                            try {
-                                int sleepTime = 2000;
-
-                                Thread.sleep(sleepTime);
-
-                                TelegramBotService.SendUnseenMessages(1, bot);
-
-
-                                //30 minutes
-                                if(counter > 1.8e+6){
-                                    counter = 0;
-                                }
-
-                                if(counter == 0){
-                                    TelegramBotService.SendMessage("Health check", bot);
-                                }
-                                counter+=sleepTime;
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+        try{
+            new Thread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            SmsHandlerJob job = new SmsHandlerJob();
+                            job.RunJob();
                         }
                     }
-                }
-        ).start();
+            ).start();
 
-        final String CHANNELID = "Foreground Service ID";
+            final String CHANNELID = "Foreground Service ID";
 
-        NotificationChannel channel = null;
-        Notification.Builder notification = null;
-        try{
+            NotificationChannel channel = null;
+            Notification.Builder notification = null;
+
+
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 channel = new NotificationChannel(
                         CHANNELID,
@@ -77,7 +53,6 @@ public class ForegroundService extends Service {
 
                 startForeground(1, notificationOld);
             }
-
         }
         catch (Exception ex){
             Log.e("ForegroundService", "Can't run foreground service");

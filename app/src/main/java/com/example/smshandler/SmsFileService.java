@@ -1,35 +1,52 @@
 package com.example.smshandler;
 
+import static com.example.smshandler.GlobalConfiguration.FileNameForStoredSms;
+
 import android.content.Context;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
 import java.util.Arrays;
 
 public class SmsFileService {
-
-    private String FileName = "StoredSms2.txt";
-    private Context context;
-
+    private final Context context;
     public SmsFileService(Context context){
         this.context = context;
     }
 
     public void WriteToFile(String data) {
-        FileService.WriteToFile(data, FileName, context);
+        try{
+            FileService.WriteToFile(data,  FileNameForStoredSms, context);
+        }
+        catch (Exception ex){
+            Log.e("fileService", "Cant' write to file");
+        }
     }
 
     public Sms[] GetAllSmsFromFile(){
-        String fileContent = readFromFile();
-        Sms[] allSms = new Gson().fromJson(fileContent, Sms[].class);
-        if(allSms == null){
-            allSms = new Sms[0];
+        Sms[] allSms = new Sms[0];
+        try{
+            String fileContent = readFromFile();
+            allSms = new Gson().fromJson(fileContent, Sms[].class);
+            if(allSms == null){
+                allSms = new Sms[0];
+            }
+            Arrays.sort(allSms, (a,b) -> a.TimeStamp < b.TimeStamp ? 1 : -1);
+            }
+        catch (Exception ex){
+            Log.e("fileService", "cannot't get all sms from file");
         }
-        Arrays.sort(allSms, (a,b) -> a.TimeStamp < b.TimeStamp ? 1 : -1);
         return allSms;
     }
 
     private String readFromFile() {
-        return FileService.ReadFromFile(FileName, context);
+        try{
+            return FileService.ReadFromFile(FileNameForStoredSms, context);
+        }
+        catch (Exception ex){
+            Log.e("FileService", "can't read from file");
+        }
+        return "";
     }
 }

@@ -13,4 +13,14 @@
         android:layout_marginLeft="300px"
         android:layout_marginTop="500px"
         android:text="Прослушка сообщений" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="400px"
+        android:layout_marginTop="900px"
+        android:onClick="CloseApp"
+        android:text="Закрыть" />
+
 </RelativeLayout>

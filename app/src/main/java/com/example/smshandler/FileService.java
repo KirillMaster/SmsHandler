@@ -22,10 +22,6 @@ public class FileService {
         }
     }
 
-    public static void CleanFile(String FileName, Context context){
-        WriteToFile("", FileName, context);
-    }
-
     public static String ReadFromFile(String FileName, Context context) {
 
         String ret = "";

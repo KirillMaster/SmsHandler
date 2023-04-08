@@ -1,6 +1,7 @@
 package com.example.smshandler;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         App();
     }
 
+    @SuppressLint("SetTextI18n")
     private void App(){
         Context context = getApplicationContext();
         SmsFileService smsFileService = new SmsFileService(context);
@@ -37,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.textView);
 
         if(foregroundServiceRunning()){
-            textView.setText("Прослушка сообщений работает");
+            textView.setText("Прослушка сообщений работает. \r\n" +
+                    "Это значит, что можно нажать кнопку закрыть\r\n" +
+                    "и пользоваться телефоном как обычно.");
         }
         else{
             textView.setText("Не работает");
@@ -79,5 +84,9 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.BROADCAST_SMS}, PackageManager.PERMISSION_GRANTED);
         ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.FOREGROUND_SERVICE}, PackageManager.PERMISSION_GRANTED);
         ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.RECEIVE_BOOT_COMPLETED}, PackageManager.PERMISSION_GRANTED);
+    }
+
+    public void CloseApp(View view){
+        finish();
     }
 }
