@@ -17,6 +17,11 @@ import androidx.core.app.ActivityCompat;
 
 
 public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onStart(){
+        super.onStart();
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +37,14 @@ public class MainActivity extends AppCompatActivity {
         PhoneSmsService phoneSmsService = new PhoneSmsService(getContentResolver());
         SmsService smsService = new SmsService(phoneSmsService, smsFileService);
         RequestPermissions();
-        TelegramBotService telegramBotService = new TelegramBotService(smsService);
-        telegramBotService.Init();
 
-        StartForegroundJob();
+        Log.e("Foreground service running?", foregroundServiceRunning() ? "Yes" : "No");
 
+        if(!foregroundServiceRunning()){
+            TelegramBotService telegramBotService = new TelegramBotService(smsService);
+            telegramBotService.Init();
+            StartForegroundJob();
+        }
         TextView textView = findViewById(R.id.textView);
 
         if(foregroundServiceRunning()){
